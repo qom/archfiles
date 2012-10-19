@@ -17,6 +17,12 @@ mkdir -m755 /run/initramfs
 # parse the kernel command line
 parse_cmdline
 
+export HOST="/host"
+export UNION="/new_root"
+mkdir -p $HOST
+# Change to "MOUNTED=1" when root is mounted successfully
+export MOUNTED="0"
+
 for d in ${disablehooks//,/ }; do
     [ -e "/hooks/$d" ] && chmod 644 "/hooks/$d"
 done
@@ -47,7 +53,9 @@ unset rootdev
 fsck_root
 
 # Mount root at /new_root
-${mount_handler:-default_mount_handler} /new_root
+echo "Will now try to mount the rootfs: ${mount_handler}"
+#${mount_handler:-default_mount_handler} /new_root
+if [ "$MOUNTED" = "0" ]; then ${mount_handler:-default_mount_handler} $UNION; fi
 
 run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
 run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS
