@@ -1,0 +1,29 @@
+run_hook ()
+{
+    # Boot parameters as: real_root=loop=/dev/sda1 loopfile=Arch/Arch-i686.img
+    echo "Start automount hook"
+    echo "loopfile=${loopfile}"
+    case ${real_root} in loop\=*) 
+    loop=${real_root/loop=}
+    echo "loop=${loop}"
+    if [ -e $loop ]; then
+        fstype=$(blkid -u filesystem -o value -s TYPE -p "${loop}")
+        if [ "${readwrite}" = "no" ]; then rwopt="ro"; else rwopt="rw"; fi
+	echo "Mounting partition where arch img resides: ${fstype}, ${loop}, ${HOST}"
+        mount -t $fstype -o $rwopt $loop $HOST
+        #mount -t $fstype -o ro $loop $HOST
+        if [ -f $HOST/$loopfile ]; then
+	    echo "Mount loopfile" 
+            loopfile="$HOST/$loopfile"
+            fstype=$(blkid -u filesystem -o value -s TYPE -p "${loopfile}")
+            if [ "${fstype}" = "squashfs" ]; then rwopt="ro"; fi
+            mount -t $fstype -o $rwopt $loopfile $UNION
+            mkdir -p $UNION$HOST
+            mkdir -p $UNION$loop
+            mount -o bind $HOST $UNION$loop
+            MOUNTED=1
+        fi
+    fi
+    ;;
+    esac
+}

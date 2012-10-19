@@ -1,0 +1,20 @@
+#!/bin/bash
+
+build() {
+    add_binary blkid
+    add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+  This hook auto mounts the root device based on arguments to the kernel.
+  Supports:
+    1. Boot from normal harddisk or USB disk;
+    2. Boot from CD-ROM or DVD-ROM;
+    3. Boot from loop device file (made b dd or other tools);
+    4. Boot from squashfs files;
+   ...
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
